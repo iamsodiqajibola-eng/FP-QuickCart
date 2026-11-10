@@ -1,5 +1,5 @@
 import { Link, NavLink } from "react-router-dom";
-import logo from "../../assets/images/logo.png";
+import logo from "../../assets/images/LOGO Q.png";
 import { MdOutlineLocalMall, MdOutlinePerson, MdSearch } from "react-icons/md";
 
 const navLinks = [
@@ -43,7 +43,7 @@ const Navbar = () => {
 
         {/*Search, cart and profile  */}
         <div className="flex items-center gap-4">
-          <form role="search" className="relativer hidden lg:block">
+          <form role="search" className="relative hidden lg:block">
             <label htmlFor="header-search" className="sr-only">
               Search Products, brands and categories
             </label>
