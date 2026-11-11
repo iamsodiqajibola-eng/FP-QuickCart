@@ -14,6 +14,8 @@ router.get("health", (_req, res) =>
   res.json({ status: "ok", message: "QuickCart API is running" }),
 );
 
+export default router;
+
 // NEXT STEP 6: Start the server => server/src/server.ts
 
 //we are asked to channge that "health" to "/health"

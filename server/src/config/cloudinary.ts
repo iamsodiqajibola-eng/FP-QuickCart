@@ -18,6 +18,10 @@ export const isCloudinaryReady = Boolean(
   env.cloudinaryCloudName && env.cloudinaryApiKey && env.cloudinaryApiSecret,
 );
 
+// What to do when the cloudinary settings are missing
+export const CLOUDINARY_MISSING =
+  "Add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET to server/.env";
+
 cloudinary.config({
   cloud_name: env.cloudinaryCloudName,
   api_key: env.cloudinaryApiKey,
@@ -77,4 +81,21 @@ export const uploadPhoto = (bytes: Buffer, publicId: string) => {
     );
     upload.end(bytes);
   });
+};
+
+// Deletes on photo from cloudinary (a missing photo is not an error)
+export const deletePhoto = async (publicId: string) => {
+  await cloudinary.uploader
+    .destroy(publicId, { invalidate: true })
+    .catch(() => {});
+};
+
+// Deletes every photo admins uploads ( the demo panels "Reset demo data" does this)
+export const deleteAllUploadedPhotos = async () => {
+  if (!isCloudinaryReady) {
+    return;
+  }
+  await cloudinary.api
+    .delete_resources_by_prefix(`${UPLOAD_FOLDER}/`)
+    .catch(() => {});
 };

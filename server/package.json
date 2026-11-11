@@ -9,7 +9,9 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
-    "seed": "tsx src/data/seed.ts"
+    "seed": "tsx src/data/seed.ts",
+    "upload-images": "tsx src/data/uploadImages.ts"
+
   },
   "keywords": [],
   "author": "",
