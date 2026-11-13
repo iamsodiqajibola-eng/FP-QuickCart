@@ -140,7 +140,7 @@ const productSchema = new Schema<IProduct>(
 
 //use it in every public query
 
-export const liveProduct = () => {
+export const liveProducts = () => {
   return {
     $or: [
       { status: "published" as const },

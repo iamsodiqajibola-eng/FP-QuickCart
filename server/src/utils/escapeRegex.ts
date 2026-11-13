@@ -1,0 +1,10 @@
+// escapeRegex.ts
+// Makes user text safe to put inside a regular expression.
+// Example: "3.5mm (black)" becomes "3\.5mm \(black\)"
+// Without it, "." would match any character and "(" could crash the search.
+
+// STEP 16: The products API (helper)
+
+export const escapeRegex = (text: string) => {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+};

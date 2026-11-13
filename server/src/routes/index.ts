@@ -1,21 +1,34 @@
 // routes/index.ts
-//Join all the files together app.ts puts theses under /api
+// Join all route files together. app.ts puts these under /api.
 
 import { Router } from "express";
+import categoryRoutes from "./categoryRoutes";
+import productRoutes from "./productRoutes";
+import authRoutes from "./authRoutes";
 
-//Step 5: join the route and add a health check
-// One router joins all the route files. app,ts mounts it at api, so a route like e-g "/products" becomes /api/products
+// Step 5: Join the routes and add a health check.
+// One router joins all the route files.
+// app.ts mounts it at /api.
 
 const router = Router();
 
-//Get /api/health: a quick check that the API is running
+// GET /api/health: Check that the API is running.
 
-router.get("health", (_req, res) =>
-  res.json({ status: "ok", message: "QuickCart API is running" }),
+router.get("/health", (_req, res) =>
+  res.json({
+    status: "ok",
+    message: "QuickCart API is running",
+  }),
 );
+
+// Step 15: Category API routes.
+// GET /api/categories
+// GET /api/categories/:slug
+
+router.use("/categories", categoryRoutes);
+router.use("/products", productRoutes);
+router.use("/auth", authRoutes);
 
 export default router;
 
-// NEXT STEP 6: Start the server => server/src/server.ts
-
-//we are asked to channge that "health" to "/health"
+// Next step: Start the server => server/src/server.ts

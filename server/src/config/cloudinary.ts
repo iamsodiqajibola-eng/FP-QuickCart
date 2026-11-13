@@ -1,63 +1,60 @@
-// cloudinary.ts
-// Product photo lives on cloudinary, a service that stores pictures and serves them quickly from anywhere in the world. This files logs into cloudinary once and has small helpers for photo addresses
-
 import { v2 as cloudinary } from "cloudinary";
 import { env } from "./env";
-import { resolve } from "node:dns";
-import { rejects } from "node:assert";
-// Every product photo is kept in the "quickcart/products" folder:
-// quickcart/products/smart-watch-ultra
+
+// Every product photo is kept in the quickcart/products folder.
 
 export const PHOTO_FOLDER = "quickcart/products";
 export const UPLOAD_FOLDER = `${PHOTO_FOLDER}/uploads`;
 
-// Store products photos on Cloudinary
-// Log into cloudinary with the 3 settings from .env, and build photo addresses. f_auto, q_auto in an address asks cloudinary for the best format and size for each browser, so photos loads faster.
+// Check whether Cloudinary credentials are available.
 
 export const isCloudinaryReady = Boolean(
   env.cloudinaryCloudName && env.cloudinaryApiKey && env.cloudinaryApiSecret,
 );
 
-// What to do when the cloudinary settings are missing
 export const CLOUDINARY_MISSING =
   "Add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET to server/.env";
+
+// Configure Cloudinary.
 
 cloudinary.config({
   cloud_name: env.cloudinaryCloudName,
   api_key: env.cloudinaryApiKey,
   api_secret: env.cloudinaryApiSecret,
-  secure: true, // htts addresses
+  secure: true,
 });
 
-// The start of every products photo address. eg "https://res.cloudinary.com/my-cloud/image/upload/f_auto,q_auto/"
+// Base URL for product photos.
 
 const PHOTO_URL_START = `https://res.cloudinary.com/${env.cloudinaryCloudName}/image/upload/f_auto,q_auto/`;
 
-// "quickcart/products/smart-watch-ultra" -> "https://res.cloudinary.com/my-cloud/image/upload/f_auto,q_auto/quickcart/products/smart-watch-ultra"
+// Convert a Cloudinary public ID into a photo URL.
+
 export const photoUrl = (publicId: string) => {
   return PHOTO_URL_START + publicId;
 };
 
-// The photo of a demo product, from its slug: "smart-watch-ultra" -> its cloudinary address
+// Get a demo product photo using its slug.
+
 export const productPhotoUrl = (slug: string) => {
   return photoUrl(`${PHOTO_FOLDER}/${slug}`);
 };
 
-// is this one of our product photos? (an address in our cloudinary folder, nothing else)
+// Check whether a URL belongs to our product photo folder.
 
 export const isOurPhoto = (url: string) => {
   if (
-    isCloudinaryReady ||
+    !isCloudinaryReady ||
     !url.startsWith(PHOTO_URL_START + PHOTO_FOLDER + "/")
   ) {
     return false;
   }
 
-  return /^[\w/] +$/.test(url.slice(PHOTO_URL_START.length));
+  return /^[\w/-]+$/.test(url.slice(PHOTO_URL_START.length));
 };
 
-// The cloudinary name (public id) of a photo an admin uploads, or null for any other photo.
-// Demo photos are never deleted from admin; npm run upload-images puts them there.
+// Get the public ID of an uploaded admin photo.
+
 export const uploadedPhotoId = (url: string) => {
   if (
     !isCloudinaryReady ||
@@ -65,37 +62,81 @@ export const uploadedPhotoId = (url: string) => {
   ) {
     return null;
   }
+
   return url.slice(PHOTO_URL_START.length);
 };
 
-// send photo (the file's bytes) tp cloudinary and returns its public id
+// Upload a photo to Cloudinary.
+
 export const uploadPhoto = (bytes: Buffer, publicId: string) => {
   return new Promise<string>((resolve, reject) => {
     const upload = cloudinary.uploader.upload_stream(
-      { public_id: publicId, overwrite: true, resource_type: "image" },
+      {
+        public_id: publicId,
+        overwrite: true,
+        resource_type: "image",
+      },
       (error, result) => {
-        return error || !result
-          ? reject(error ?? new Error("Cloudinary didnt anwser"))
-          : resolve(result.public_id);
+        if (error || !result) {
+          reject(error ?? new Error("Cloudinary didn't respond"));
+          return;
+        }
+
+        resolve(result.public_id);
       },
     );
+
     upload.end(bytes);
   });
 };
 
-// Deletes on photo from cloudinary (a missing photo is not an error)
+// Delete one photo from Cloudinary.
+
 export const deletePhoto = async (publicId: string) => {
   await cloudinary.uploader
     .destroy(publicId, { invalidate: true })
     .catch(() => {});
 };
 
-// Deletes every photo admins uploads ( the demo panels "Reset demo data" does this)
+// Delete every photo uploaded by admins.
+
 export const deleteAllUploadedPhotos = async () => {
   if (!isCloudinaryReady) {
     return;
   }
+
   await cloudinary.api
     .delete_resources_by_prefix(`${UPLOAD_FOLDER}/`)
     .catch(() => {});
+};
+
+// List all demo product photo public IDs from Cloudinary.
+
+export const listProductionPhotoIds = async (): Promise<string[]> => {
+  if (!isCloudinaryReady) {
+    return [];
+  }
+
+  const photoIds: string[] = [];
+  let nextCursor: string | undefined;
+
+  do {
+    const result = await cloudinary.api.resources({
+      type: "upload",
+      resource_type: "image",
+      prefix: `${PHOTO_FOLDER}/`,
+      max_results: 500,
+      ...(nextCursor ? { next_cursor: nextCursor } : {}),
+    });
+
+    photoIds.push(
+      ...result.resources.map(
+        (resource: { public_id: string }) => resource.public_id,
+      ),
+    );
+
+    nextCursor = result.next_cursor;
+  } while (nextCursor);
+
+  return photoIds;
 };
