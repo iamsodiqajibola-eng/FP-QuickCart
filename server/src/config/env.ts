@@ -5,6 +5,15 @@ import dotenv from "dotenv";
 
 dotenv.config({ quiet: true });
 
+const rawBrevoListId = process.env.BREVO_LIST_ID?.trim();
+
+const brevoListId =
+  rawBrevoListId &&
+  Number.isInteger(Number(rawBrevoListId)) &&
+  Number(rawBrevoListId) > 0
+    ? Number(rawBrevoListId)
+    : undefined;
+
 // === Step 1: Read the settings from .env
 //All settings (port, database address, JWT Secret....) are read from .env here, once, so the rest of the code uses env.port, env.monogoUri and so on.
 
@@ -34,6 +43,12 @@ export const env = {
   cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME || "",
   cloudinaryApiKey: process.env.CLOUDINARY_API_KEY || "",
   cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET || "",
+
+  // Brevo sends the emails (see utils/sendEmail.ts). Empty = emails are printed in the terminal instead
+  brevoApiKey: process.env.BREVO_API_KEY || "",
+  brevoListId,
+  emailFrom: process.env.EMAIL_FROM || "",
+  emailFromName: process.env.EMAIL_FROM_NAME || "QuickCart",
 };
 
 // Note i change the mongoDB fetch code from MongoUTL to MongoURL num-16

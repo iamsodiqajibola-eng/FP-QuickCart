@@ -1,12 +1,14 @@
 // errorHandler.ts
-// The last middleware: Turn any error thrown in a route into a json, then reply with the right status code, so the server never crashed and the website always get .....{message: "..."}
+// The last middleware: Turn any error thrown in a route into a json, then reply with the right status code, so the server never crashes and the website always gets { message: "..." }
 
-// Step 14: Handle unknown  URLs ans errors
-// notfound.ts answers "no route matched": this file answers " a route matched but something went wrong"
+// Step 14: Handle unknown URLs and errors
+// notfound.ts answers "no route matched": this file answers "a route matched but something went wrong"
 
 import type { NextFunction, Request, Response } from "express";
 import { AppError } from "../utils/AppError";
 import mongoose from "mongoose";
+import multer from "multer";
+import { MAX_PHOTO_MB, MAX_PHOTOS } from "./upload";
 
 export const errorHandler = (
   error: unknown,
@@ -16,11 +18,23 @@ export const errorHandler = (
 ) => {
   // 1. Our own Errors: throw new AppError(404, "Product not found")
   if (error instanceof AppError) {
-    return res.status(error.statusCode).json({ message: error.message }); // check this out
+    return res.status(error.statusCode).json({ message: error.message });
   }
 
-  // 2. A record broke the model rules (e.g required field missing, price below 0)
+  // 1b. Multer refused an upload (STEP 25): a file too big, too many files, or the wrong field name
+  if (error instanceof multer.MulterError) {
+    const messages: Partial<Record<string, string>> = {
+      LIMIT_FILE_SIZE: `Each photo must be ${MAX_PHOTO_MB}MB or smaller.`,
+      LIMIT_FILE_COUNT: `You can upload up to ${MAX_PHOTOS} photos at a time.`,
+      LIMIT_UNEXPECTED_FILE: `Send the photos in a field called "photos" (up to ${MAX_PHOTOS} at a time).`,
+    };
 
+    return res.status(400).json({
+      message: messages[error.code] ?? error.message,
+    });
+  }
+
+  // 2. A record broke the model rules (e.g. required field missing, price below 0)
   if (error instanceof mongoose.Error.ValidationError) {
     const message = Object.values(error.errors).map((field) => {
       return field.message;
@@ -29,16 +43,14 @@ export const errorHandler = (
     return res.status(400).json({ message: message.join(". ") });
   }
 
-  // 3. A badly formed id, e.g Get /apiproduct123 ("123" is not a mongoDB id)
-
+  // 3. A badly formed ID, e.g. GET /api/product/123
   if (error instanceof mongoose.Error.CastError) {
     return res
       .status(400)
       .json({ message: `Invalid ${error.path}: ${String(error.value)}` });
   }
 
-  // The remaining errors arent classes we can check with instanceof, so we look at thier fields
-
+  // The remaining errors aren't classes we can check with instanceof, so we look at their fields
   const err = error as {
     code?: number;
     keyValue?: Record<string, unknown>;
@@ -46,8 +58,7 @@ export const errorHandler = (
     name?: string;
   };
 
-  // 4. A Unigque field already used , e.g registration with an emall that exists (MongoDB code 11000)
-
+  // 4. A unique field already used, e.g. registration with an email that exists (MongoDB code 11000)
   if (err.code === 11000) {
     const field = Object.keys(err.keyValue ?? {})[0] ?? "values";
     return res
@@ -55,25 +66,24 @@ export const errorHandler = (
       .json({ message: `That ${field} is already in use.` });
   }
 
-  // 5.) The Website sent broken JSON (express.json() couldnt read the body)
+  // 5. The website sent broken JSON (express.json() couldn't read the body)
   if (err.type === "entity.parse.failed") {
     return res
       .status(400)
-      .json({ message: "The request body is not valid Json" });
+      .json({ message: "The request body is not valid JSON." });
   }
 
   // 6. A bad or expired login token
-
   if (err.name === "JsonWebTokenError" || err.name === "TokenExpiredError") {
     return res
       .status(401)
-      .json({ message: "Your session has expired. Please Log in the again" });
+      .json({ message: "Your session has expired. Please log in again." });
   }
 
-  // 7.) Anything else is a bug on our side: log the details for us, send a polite message to the user (never send real error to broswer, it can how the server works)
-
+  // 7. Anything else is a bug on our side: log the details for us, send a polite message to the user
   console.error(error);
+
   return res
     .status(500)
-    .json({ message: "Something went wrong on our side. Please try again" });
+    .json({ message: "Something went wrong on our side. Please try again." });
 };

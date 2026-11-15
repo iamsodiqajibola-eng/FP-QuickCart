@@ -6,11 +6,17 @@ import mongoose, { Types } from "mongoose";
 import { Category } from "../models/category";
 import { Product } from "../models/product";
 import { User } from "../models/user";
+import { PromoCode } from "../models/promoCode";
 import { demoCategories, demoProducts, demoUsers } from "./demoData";
+import { promoCodes } from "./promoCodes";
 import { listProductionPhotoIds } from "../config/cloudinary";
 import { products } from "./product";
 import { categories } from "./categories";
 import { connectDB } from "../config/database";
+import { Order } from "../models/Order";
+import { Counter } from "../models/Counter";
+import { Review } from "../models/Review";
+import { createDemoOrders, demoShoppers } from "./demoOrders";
 
 // Step 13: The seed command
 
@@ -24,6 +30,10 @@ export const seedDatabase = async () => {
     Category.deleteMany({}),
     Product.deleteMany({}),
     User.deleteMany({}),
+    PromoCode.deleteMany({}),
+    Order.deleteMany({}),
+    PromoCode.deleteMany({}),
+    Counter.deleteMany({}),
   ]);
 
   // 2. Save categories and remember each ID by slug.
@@ -111,12 +121,22 @@ export const seedDatabase = async () => {
 
   const savedUsers = await User.create(demoUsers());
 
-  // 7. A summary of everything saved.
+  // 7. Save the promo codes (insertMany is fine here: promo codes have no save hooks)
+
+  const savedPromoCodes = await PromoCode.insertMany(promoCodes);
+
+  // 8. Demo orders (STEP 28): 4 more shoppers and ~40 orders, so the dashboard and Order History have data
+
+  const demoOrderCount = await createDemoOrders(savedProducts);
+
+  // 9. A summary for whoever ran the seed.
 
   return {
     categories: savedCategories.length,
     products: savedProducts.length,
-    users: savedUsers.length,
+    users: savedUsers.length + demoShoppers.length,
+    promoCodes: savedPromoCodes.length,
+    orders: demoOrderCount,
     withoutPhotos: savedProducts
       .filter((product) => product.images.length === 0)
       .map((product) => product.name),
@@ -132,7 +152,7 @@ const runSeed = async () => {
     const result = await seedDatabase();
 
     console.log(
-      `Seeded ${result.categories} categories, ${result.products} products and ${result.users} users`,
+      `Seeded ${result.categories} categories, ${result.products} products, ${result.users} users, ${result.promoCodes} promo codes and ${result.orders} demo orders`,
     );
 
     if (result.withoutPhotos.length > 0) {

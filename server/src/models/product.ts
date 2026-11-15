@@ -35,7 +35,7 @@ export interface IProduct {
   category: Types.ObjectId; // points to a Category
   brand: string;
   sku: string; // stock code, e.g "QC-AU-9042"
-  price: Number;
+  price: number;
   oldPrice?: number; // crossed-out price when on sale
   costPrice?: number; // what the shop paid (admin only)
   trackStock: boolean; // false = never sells out and stock isit counted down (e.g made to order)
@@ -49,7 +49,7 @@ export interface IProduct {
   highlights: IProductHighlight[]; // The three features cards under the photos on the ptoject page
   ratings: number; // avarage star rating 0 to 5
   reviewCount: number; //
-  ratingscounts: number[]; // how many 5, 4, 3, 2, 1 star rating (in that order )
+  ratingsCounts: number[]; // how many 5, 4, 3, 2, 1 star rating (in that order )
   sold: number; // how many have been sold (used for the "Best sellers")
   flashSaleStock?: number; // units offered in the flash sales, used to show "Claimed: 82%"
   bundleProducts: Types.ObjectId[]; // "Frequently bought together" product
@@ -112,7 +112,7 @@ const productSchema = new Schema<IProduct>(
 
     reviewCount: { type: Number, default: 0 },
 
-    ratingscounts: [{ type: Number }],
+    ratingsCounts: [{ type: Number }],
 
     sold: { type: Number, default: 0, min: 0 },
 

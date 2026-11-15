@@ -5,6 +5,12 @@ import { Router } from "express";
 import categoryRoutes from "./categoryRoutes";
 import productRoutes from "./productRoutes";
 import authRoutes from "./authRoutes";
+import accountRoutes from "./accountRoutes";
+import promoRoutes from "./promoRoutes";
+import orderRoutes from "./orderRoutes";
+import reviewRoutes from "./reviewRoutes";
+import newsletterRoutes from "./newsletterRoutes";
+import adminRoutes from "./adminRoutes";
 
 // Step 5: Join the routes and add a health check.
 // One router joins all the route files.
@@ -28,6 +34,12 @@ router.get("/health", (_req, res) =>
 router.use("/categories", categoryRoutes);
 router.use("/products", productRoutes);
 router.use("/auth", authRoutes);
+router.use("/account", accountRoutes); // /api/ account
+router.use("/promo-codes", promoRoutes); // /api/promo-codes...
+router.use("/orders", orderRoutes); // /api/orders
+router.use("/reviews", reviewRoutes); // /api/reviews....
+router.use("/newsletter", newsletterRoutes); // /api/newsletter....
+router.use("/admin", adminRoutes); // /api/admin (admin only)....
 
 export default router;
 
