@@ -1,6 +1,7 @@
 import { Link, NavLink } from "react-router-dom";
 import logo from "../../assets/images/LOGO Q.png";
-import { MdOutlineLocalMall, MdOutlinePerson, MdSearch } from "react-icons/md";
+import { MdOutlineLocalMall, MdSearch } from "react-icons/md";
+import AccountMenu from "../../layouts/AccountMenu";
 
 const navLinks = [
   { label: "Home", to: "/" },
@@ -11,7 +12,7 @@ const navLinks = [
 const Navbar = () => {
   return (
     <nav className="sticky top-0 z-50 bg-surface print:hidden shadow-[0_1px_3px_rgba(11,28,48,0.05)]">
-      <div className="mx-auto flex max-w-360 flex-wrap items-center justify-between gap-y-3 px-4 py-3 md:px-12 lg:h-20 lg:flex-nowrap  ">
+      <div className="mx-auto flex max-w-360 flex-wrap items-center justify-between gap-y-3 px-4 py-3 md:px-12 lg:h-20 lg:flex-nowrap">
         <Link to="/">
           <img src={logo} alt="" />
         </Link>
@@ -41,17 +42,19 @@ const Navbar = () => {
           </ul>
         </div>
 
-        {/*Search, cart and profile  */}
+        {/* Search, cart and profile */}
         <div className="flex items-center gap-4">
           <form role="search" className="relative hidden lg:block">
             <label htmlFor="header-search" className="sr-only">
               Search Products, brands and categories
             </label>
+
             <MdSearch
               size={21}
-              arai-hidden="true"
+              aria-hidden="true"
               className="pointer-events-none absolute top-3 left-3.25 text-muted"
             />
+
             <input
               id="header-search"
               name="search"
@@ -64,20 +67,16 @@ const Navbar = () => {
           <Link
             to="/cart"
             aria-label="Cart"
-            className="relative flex size-10 items-center  justify-center rounded-full bg-field  text-ink transition-colors hover:bg-primary-light"
+            className="relative flex size-10 items-center justify-center rounded-full bg-field text-ink transition-colors hover:bg-primary-light"
           >
             <MdOutlineLocalMall size={20} aria-hidden="true" />
+
             <span className="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 animate-bomb items-center justify-center rounded-full bg-danger px-1 text-xs leading-none font-bold text-white">
               1
             </span>
           </Link>
 
-          <Link
-            to="/account"
-            className="flex size-8 items-center justify-center rounded-full bg-primary text-white transition-colors hover:bg-primary-hover"
-          >
-            <MdOutlinePerson size={16} aria-hidden="true" />
-          </Link>
+          <AccountMenu />
         </div>
       </div>
     </nav>

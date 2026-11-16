@@ -30,6 +30,7 @@ import AdminLayout from "./layouts/AdminLayout";
 import AccountOverviewPage from "./pages/account/AccountOverviewPage";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 function App() {
   return (
@@ -48,27 +49,25 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-            {/* Pages that need authentication to access */}
-            <Route>
+            {/* Pages that need a login */}
+            <Route element={<ProtectedRoute />}>
               <Route path="/verify-email" element={<VerifyEmailPage />} />
               <Route path="/checkout" element={<CheckoutPage />} />
               <Route
                 path="/order-confirmation/:orderId"
                 element={<OrderconfirmationPage />}
               />
-            </Route>
 
-            {/* Account pages: account menu on the left */}
-            <Route path="/account" element={<AccountLayout />}>
-              <Route index element={<AccountOverviewPage />} />
-              <Route path="orders" element={<OrderHistory />} />
-              <Route path="addresses" element={<AddressesPage />} />
-              <Route path="saved" element={<SavedItemsPage />} />
-              <Route path="settings" element={<AccountSettingsPage />} />
-            </Route>
+              {/* Account pages: account menu on the left */}
+              <Route path="/account" element={<AccountLayout />}>
+                <Route index element={<AccountOverviewPage />} />
+                <Route path="orders" element={<OrderHistory />} />
+                <Route path="addresses" element={<AddressesPage />} />
+                <Route path="saved" element={<SavedItemsPage />} />
+                <Route path="settings" element={<AccountSettingsPage />} />
+              </Route>
 
-            {/* order details in full width design, so it has no account menu */}
-            <Route>
+              {/* order details in full width design, so it has no account menu */}
               <Route
                 path="/account/orders/:orderId"
                 element={<OrderDetailsPage />}
@@ -88,8 +87,8 @@ function App() {
           {/* admin login: no layout */}
           <Route path="/admin/login" element={<AdminLoginPage />} />
 
-          {/* admin pages: admin menu + top bar, no store header or footer. only admins gets in */}
-          <Route>
+          {/* Admin pages: only admins get in */}
+          <Route element={<ProtectedRoute adminOnly />}>
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboardPage />} />
               <Route path="products" element={<AdminProductsPage />} />

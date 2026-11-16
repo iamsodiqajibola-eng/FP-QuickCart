@@ -15,7 +15,7 @@ import {
   MdOutlineSpa,
 } from "react-icons/md";
 
-export const categoryicons: Record<string, IconType> = {
+export const categoryIcons: Record<string, IconType> = {
   devices: MdOutlineDevices,
   checkroom: MdOutlineCheckroom,
   chair: MdOutlineChair,
@@ -36,12 +36,12 @@ const iconNameByCategory: Record<string, string> = {
   Fashion: "checkroom",
   "Home & Living": "chair",
   Beauty: "spa",
-  Sports: "Fitness_center",
+  Sports: "fitness_center",
   Books: "menu_book",
   Office: "desk",
   Kitchen: "soup_kitchen",
 };
 
 export function getCategoryIconByName(name = ""): IconType {
-  return categoryicons[iconNameByCategory[name]] ?? DefaultCategoryIcon;
+  return categoryIcons[iconNameByCategory[name]] ?? DefaultCategoryIcon;
 }
