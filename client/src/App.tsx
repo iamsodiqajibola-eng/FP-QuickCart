@@ -42,12 +42,20 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/shop" element={<ShopPage />} />
             <Route path="/categories" element={<CategoriesPage />} />
-            <Route path="/product/:id" element={<ProductDetailsPage />} />
+            <Route
+              path="/product/:productId"
+              element={<ProductDetailsPage />}
+            />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="/reset-password" element={<ResetPasswordPage />} />
+
+            {/* Password reset link includes the token from the email */}
+            <Route
+              path="/reset-password/:token"
+              element={<ResetPasswordPage />}
+            />
 
             {/* Pages that need a login */}
             <Route element={<ProtectedRoute />}>

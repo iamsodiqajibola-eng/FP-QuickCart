@@ -1,8 +1,5 @@
-// AuthContext.ts client/src/context/AuthContext.ts
-// "Who is logged in?" for the whole website.
-
 import { createContext, useContext } from "react";
-import type { User } from "../types/api";
+import type { AuthResponse, User } from "../types/api";
 
 // What the register form sends
 export type RegisterData = {
@@ -26,6 +23,7 @@ export type AuthContextValue = {
   register: (data: RegisterData) => Promise<User>;
   logout: () => void;
   setUser: (user: User) => void;
+  startSession: (auth: AuthResponse) => User;
 };
 
 // null until AuthProvider gives it a value

@@ -1,7 +1,9 @@
 import { Link, NavLink } from "react-router-dom";
 import logo from "../../assets/images/LOGO Q.png";
-import { MdOutlineLocalMall, MdSearch } from "react-icons/md";
+import { MdOutlineLocalMall } from "react-icons/md";
 import AccountMenu from "../../layouts/AccountMenu";
+import { useCart } from "../../context/CartContext";
+import SearchBox from "./SearchBox";
 
 const navLinks = [
   { label: "Home", to: "/" },
@@ -10,6 +12,8 @@ const navLinks = [
 ];
 
 const Navbar = () => {
+  const { count } = useCart();
+
   return (
     <nav className="sticky top-0 z-50 bg-surface print:hidden shadow-[0_1px_3px_rgba(11,28,48,0.05)]">
       <div className="mx-auto flex max-w-360 flex-wrap items-center justify-between gap-y-3 px-4 py-3 md:px-12 lg:h-20 lg:flex-nowrap">
@@ -44,36 +48,25 @@ const Navbar = () => {
 
         {/* Search, cart and profile */}
         <div className="flex items-center gap-4">
-          <form role="search" className="relative hidden lg:block">
-            <label htmlFor="header-search" className="sr-only">
-              Search Products, brands and categories
-            </label>
-
-            <MdSearch
-              size={21}
-              aria-hidden="true"
-              className="pointer-events-none absolute top-3 left-3.25 text-muted"
-            />
-
-            <input
-              id="header-search"
-              name="search"
-              type="search"
-              placeholder="Search products, brands and categories..."
-              className="h-12 w-83 rounded-full bg-field pr-4 pl-11.75 text-[13px] text-ink outline-none placeholder:text-muted focus:ring-2 focus:ring-primary/30"
-            />
-          </form>
+          <SearchBox />
 
           <Link
             to="/cart"
-            aria-label="Cart"
+            aria-label={`Cart, ${count} ${count === 1 ? "item" : "items"}`}
             className="relative flex size-10 items-center justify-center rounded-full bg-field text-ink transition-colors hover:bg-primary-light"
           >
             <MdOutlineLocalMall size={20} aria-hidden="true" />
 
-            <span className="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 animate-bomb items-center justify-center rounded-full bg-danger px-1 text-xs leading-none font-bold text-white">
-              1
-            </span>
+            {/* key={count}: a new number = a new element, so the bump animation plays again */}
+            {count > 0 && (
+              <span
+                key={count}
+                aria-hidden="true"
+                className="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 animate-bumb items-center justify-center rounded-full bg-danger px-1 text-xs leading-none font-bold text-white"
+              >
+                {count > 99 ? "99+" : count}
+              </span>
+            )}
           </Link>
 
           <AccountMenu />
