@@ -39,8 +39,8 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
   }, []);
 
-  // Save the token and the user. Used by login and register (the server logs you in straight after registering).
-  const startSession = ({ token, user }: AuthResponse) => {
+  // Save the token and the user. Used by login and register.
+  const startSession = ({ token, user }: AuthResponse): User => {
     localStorage.setItem(TOKEN_KEY, token);
     setUser(user);
     return user;
@@ -51,7 +51,6 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     password: string,
     rememberMe: boolean,
   ) => {
-    // Errors (e.g. 401 "Incorrect email or password.") are thrown on to the login page, which shows them
     return startSession(
       await api<AuthResponse>("/auth/login", {
         method: "POST",
@@ -62,13 +61,15 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const register = async (data: RegisterData) => {
     return startSession(
-      await api<AuthResponse>("/auth/register", { method: "POST", body: data }),
+      await api<AuthResponse>("/auth/register", {
+        method: "POST",
+        body: data,
+      }),
     );
   };
 
   const logout = () => {
-    // The server has nothing to delete (server STEP 18): throwing the token away IS logging out.
-    // We still tell it, without waiting, in case it ever needs to know.
+    // Throwing the token away IS logging out.
     api("/auth/logout", { method: "POST" }).catch(() => {});
     localStorage.removeItem(TOKEN_KEY);
     setUser(null);
@@ -76,7 +77,15 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, checking, login, register, logout, setUser }}
+      value={{
+        user,
+        checking,
+        login,
+        register,
+        logout,
+        setUser,
+        startSession,
+      }}
     >
       {children}
     </AuthContext.Provider>

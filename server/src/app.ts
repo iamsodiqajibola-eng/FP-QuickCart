@@ -15,6 +15,10 @@ import { errorHandler } from "./middleware/errorHandler";
 
 // The Express app: allow the website to call the server
 const app = express();
+// Online hosts (Render, Railway...) put a "proxy" in front of the app that handles https. Trusting it makes
+// req.protocol say "https" instead of "http", so links the server builds (the newsletter's unsubscribe link)
+// are correct. (STEP 29)
+app.set("trust proxy", 1);
 
 app.use(cors({ origin: env.clientUrl, credentials: true })); // let the website (client_URL) call the api
 app.use(express.json());

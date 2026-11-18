@@ -11,7 +11,9 @@
     "typecheck": "tsc --noEmit",
     "seed": "tsx src/data/seed.ts",
     "upload-images": "tsx src/data/uploadImages.ts"
-
+  },
+  "engines": {
+    "node": ">=20"
   },
   "keywords": [],
   "author": "",
